@@ -1,6 +1,10 @@
-# Virtual environments  
-venv/  
-.env/  
+# Virtual environments
+venv/
+
+# Environment files (contain API keys — never commit these)
+.env
+.env/
+.env.save
 
 # Python cache  
 __pycache__/  
