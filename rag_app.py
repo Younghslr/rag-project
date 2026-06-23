@@ -1,25 +1,35 @@
 import os
 import sys
-from google import genai
+from openai import OpenAI
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 
 load_dotenv()
 
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
-if not GEMINI_API_KEY:
-    print("ERROR: GEMINI_API_KEY is not set.")
-    print("Make sure your .env file exists and contains: GEMINI_API_KEY=your_key_here")
+if not OPENAI_API_KEY:
+    print("ERROR: OPENAI_API_KEY is not set.")
+    print("Make sure your .env file exists and contains: OPENAI_API_KEY=your_key_here")
     sys.exit(1)
 
-client = genai.Client(api_key=GEMINI_API_KEY)
+client = OpenAI(api_key=OPENAI_API_KEY)
 
 app = FastAPI()
 
 class QueryRequest(BaseModel):
     question: str
+
+
+# --- Helper ---
+
+def call_openai(prompt: str) -> str:
+    response = client.chat.completions.create(
+        model="gpt-4o-mini",
+        messages=[{"role": "user", "content": prompt}]
+    )
+    return response.choices[0].message.content
 
 
 # --- Validation functions ---
@@ -51,11 +61,7 @@ Your job:
 AI response to review:
 {original_answer}
 """
-    review_response = client.models.generate_content(
-        model="gemini-2.0-flash",
-        contents=review_prompt
-    )
-    return review_response.text
+    return call_openai(review_prompt)
 
 
 # --- Endpoints ---
@@ -68,24 +74,21 @@ def health_check():
 @app.get("/test-gemini")
 async def test_gemini():
     # Step 1: Generate an outline
-    outline_response = client.models.generate_content(
-        model="gemini-2.0-flash",
-        contents="Create a short 3-point outline explaining how Retrieval-Augmented Generation (RAG) works. "
-                 "Format it as a numbered list with one sentence per point."
+    outline = call_openai(
+        "Create a short 3-point outline explaining how Retrieval-Augmented Generation (RAG) works. "
+        "Format it as a numbered list with one sentence per point."
     )
-    outline = outline_response.text
 
     # Step 2: Expand the outline into a full explanation
-    final_response = client.models.generate_content(
-        model="gemini-2.0-flash",
-        contents=f"Using this outline:\n\n{outline}\n\n"
-                 "Write a clear, beginner-friendly explanation of RAG based on those points. "
-                 "Keep it to three short paragraphs."
+    final = call_openai(
+        f"Using this outline:\n\n{outline}\n\n"
+        "Write a clear, beginner-friendly explanation of RAG based on those points. "
+        "Keep it to three short paragraphs."
     )
 
     return {
         "step_1_outline": outline,
-        "step_2_response": final_response.text,
+        "step_2_response": final,
     }
 
 
@@ -93,11 +96,7 @@ async def test_gemini():
 def query_ai(request: QueryRequest):
     validate_user_input(request.question)
 
-    primary_response = client.models.generate_content(
-        model="gemini-2.0-flash",
-        contents=request.question
-    )
-    raw_answer = primary_response.text
+    raw_answer = call_openai(request.question)
 
     validate_model_output(raw_answer)
 
