@@ -1,16 +1,19 @@
-# Virtual environments
+# Environment variables — never commit your API keys!
+.env
+
+# Python virtual environment
 venv/
+env/
+.venv/
 
-# Environment files (contain API keys — never commit these)
-.env
-.env/
-.env.save
+# Python cache files
+__pycache__/
+*.pyc
+*.pyo
 
-# Python cache  
-__pycache__/  
-*.pyc  
+# ChromaDB data (regenerated on startup)
+chroma_db/
 
-# OS files  
+# OS files
 .DS_Store
-.env
-.env
+Thumbs.db
