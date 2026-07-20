@@ -68,7 +68,42 @@ def check_hallucination(answer, context_docs):
     #   6. Return the dict. Wrap everything in try/except — if this call fails,
     #      return: {"verdict": "UNKNOWN", "is_grounded": True, "warning": ""}
     #
-    return {"verdict": "UNKNOWN", "is_grounded": True, "warning": ""}  # placeholder
+    try:
+        context = "\n\n".join([f"Document {i+1}: {doc}" for i, doc in enumerate(context_docs)])
+        prompt = f"""You are evaluating whether an AI-generated answer is supported by the provided source documents.
+
+Source Documents:
+{context}
+
+AI Answer:
+{answer}
+
+Respond with exactly one word:
+- GROUNDED if the answer is fully supported by the documents
+- PARTIAL if the answer is mostly supported but includes some information beyond the documents
+- HALLUCINATED if the answer contains significant information not found in the documents"""
+
+        response = _client.chat.completions.create(
+            model=OPENAI_MODEL,
+            messages=[{"role": "user", "content": prompt}],
+            temperature=0.0,
+        )
+        verdict = response.choices[0].message.content.strip().upper()
+
+        if verdict not in ["GROUNDED", "PARTIAL", "HALLUCINATED"]:
+            verdict = "PARTIAL"
+
+        if verdict == "GROUNDED":
+            warning = ""
+        elif verdict == "PARTIAL":
+            warning = "Note: This answer may include some information beyond the provided sources."
+        else:
+            warning = "Warning: This answer may contain information not found in the source documents."
+
+        return {"verdict": verdict, "is_grounded": verdict == "GROUNDED", "warning": warning}
+
+    except Exception:
+        return {"verdict": "UNKNOWN", "is_grounded": True, "warning": ""}
 
 
 def calculate_confidence(distances):
@@ -102,4 +137,8 @@ def calculate_confidence(distances):
     #   3. Apply the formula above
     #   4. Return the result rounded to 2 decimal places: round(confidence, 2)
     #
-    return 0.0  # placeholder — replace with your implementation
+    if not distances:
+        return 0.0
+    avg_distance = sum(distances) / len(distances)
+    confidence = max(0.0, 1.0 - (avg_distance / 2.0))
+    return round(confidence, 2)
