@@ -17,12 +17,104 @@ from rag_pipeline import initialize_vector_store, run_rag, get_feature_status
 from conversation import ConversationHistory
 
 # --- Page Configuration ---
-# This must be the FIRST Streamlit command called in the script.
 st.set_page_config(
     page_title="RAG Learning App",
     page_icon="🔍",
     layout="wide",
 )
+
+# --- Custom Styling ---
+st.markdown("""
+<style>
+    /* Main background */
+    .stApp {
+        background: linear-gradient(135deg, #0f0f1a 0%, #1a1a2e 50%, #16213e 100%);
+    }
+
+    /* Sidebar */
+    [data-testid="stSidebar"] {
+        background: linear-gradient(180deg, #0d0d1a 0%, #1a1a2e 100%);
+        border-right: 1px solid #00d4ff22;
+    }
+
+    /* Sidebar text */
+    [data-testid="stSidebar"] * {
+        color: #c8d6e5 !important;
+    }
+
+    /* Title styling */
+    h1 {
+        background: linear-gradient(90deg, #00d4ff, #7b2ff7);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        font-weight: 800 !important;
+        letter-spacing: -1px;
+    }
+
+    h2, h3 {
+        color: #00d4ff !important;
+    }
+
+    /* Chat message bubbles */
+    [data-testid="stChatMessage"] {
+        background: rgba(255,255,255,0.03) !important;
+        border: 1px solid rgba(0, 212, 255, 0.1) !important;
+        border-radius: 12px !important;
+        padding: 4px !important;
+        margin-bottom: 8px !important;
+        backdrop-filter: blur(10px);
+    }
+
+    /* Input box */
+    [data-testid="stChatInput"] textarea {
+        background: rgba(255,255,255,0.05) !important;
+        border: 1px solid #00d4ff44 !important;
+        color: #ffffff !important;
+        border-radius: 12px !important;
+    }
+
+    /* Buttons */
+    .stButton > button {
+        background: linear-gradient(90deg, #00d4ff22, #7b2ff722) !important;
+        border: 1px solid #00d4ff55 !important;
+        color: #00d4ff !important;
+        border-radius: 8px !important;
+        transition: all 0.2s ease;
+    }
+    .stButton > button:hover {
+        background: linear-gradient(90deg, #00d4ff44, #7b2ff744) !important;
+        border-color: #00d4ff !important;
+        transform: translateY(-1px);
+    }
+
+    /* Expander */
+    [data-testid="stExpander"] {
+        background: rgba(0, 212, 255, 0.03) !important;
+        border: 1px solid #00d4ff22 !important;
+        border-radius: 8px !important;
+    }
+
+    /* Metric / info text */
+    p, li, label {
+        color: #c8d6e5 !important;
+    }
+
+    /* Divider */
+    hr {
+        border-color: #00d4ff22 !important;
+    }
+
+    /* Caption */
+    .stCaption {
+        color: #7b8fa1 !important;
+    }
+
+    /* Success / warning / info boxes */
+    [data-testid="stAlert"] {
+        border-radius: 8px !important;
+    }
+</style>
+""", unsafe_allow_html=True)
 
 # --- Initialize Session State ---
 # Streamlit re-runs the entire script on every user interaction (like a button click).
@@ -49,29 +141,29 @@ if not st.session_state.store_initialized:
 
 # --- Sidebar ---
 with st.sidebar:
-    st.title("RAG App")
+    st.markdown("## 🔍 RAG App")
     st.divider()
 
-    st.subheader("System Info")
-    st.write(f"Knowledge base: **{st.session_state.doc_count} documents**")
-    st.write("Embedding model: **text-embedding-3-small**")
-    st.write("LLM: **gpt-4o-mini**")
+    st.markdown("### ⚙️ System Info")
+    st.markdown(f"📚 Knowledge base: **{st.session_state.doc_count} documents**")
+    st.markdown("🧠 Embedding: **text-embedding-3-small**")
+    st.markdown("⚡ LLM: **gpt-4o-mini**")
 
     st.divider()
 
-    if st.button("Clear Conversation", use_container_width=True):
+    if st.button("🗑️ Clear Conversation", use_container_width=True):
         st.session_state.conversation_history.clear()
         st.session_state.chat_messages = []
         st.rerun()
 
     st.divider()
 
-    st.subheader("How It Works")
+    st.markdown("### 💡 How It Works")
     st.markdown("""
-    1. Your question is **embedded** (converted to a vector)
-    2. Similar vectors are found in **ChromaDB**
-    3. Relevant documents are sent to **Gemini** as context
-    4. Gemini generates an answer grounded in those documents
+    1. Your question is **embedded** into a vector
+    2. **ChromaDB** finds the closest documents
+    3. Docs are sent to **GPT-4o-mini** as context
+    4. Answer is grounded in your knowledge base
     """)
 
     st.divider()
@@ -92,7 +184,8 @@ with st.sidebar:
 
 # --- Main Content ---
 st.title("RAG Learning App")
-st.caption("Ask questions about Python, machine learning, databases, and AI concepts")
+st.markdown("*Ask questions about Python, machine learning, databases, and AI concepts*")
+st.divider()
 
 # --- Display Chat History ---
 # Loop through all previous messages and render them in chat bubbles
