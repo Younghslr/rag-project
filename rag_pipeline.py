@@ -152,19 +152,11 @@ def run_rag(query, conversation_history=None):
     query = sanitize_input(query)
     # ─────────────────────────────────────────────────────────────────────────
 
-    # ── Week 15 TODO ──────────────────────────────────────────────────────────
-    # Rewrite the query before retrieval to improve embedding quality.
-    #
-    # The RAG concept: the phrasing of the query directly affects what
-    # embedding gets produced, which affects what documents get retrieved.
-    # A more specific, well-formed query produces a better embedding.
-    #
-    # Steps:
-    #   1. Get conversation context (if any):
-    #        history_context = ""
-    #        if conversation_history and len(conversation_history) > 0:
-    #            history_context = conversation_history.get_formatted_history()
-    #   2. Rewrite: query = rewrite_query(query, history_context)
+    # ── Week 15: Query Rewriting ──────────────────────────────────────────────
+    history_context = ""
+    if conversation_history and len(conversation_history) > 0:
+        history_context = conversation_history.get_formatted_history()
+    query = rewrite_query(query, history_context)
     # ─────────────────────────────────────────────────────────────────────────
 
     # ── Week 10: Core Retrieval — already complete ───────────────────────────

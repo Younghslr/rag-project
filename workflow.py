@@ -60,7 +60,31 @@ def rewrite_query(original_query, conversation_context=""):
     #   4. Return response.choices[0].message.content.strip() if not empty and under 500 chars
     #   5. Wrap in try/except — if anything fails, return original_query unchanged
     #
-    return original_query  # placeholder — query passes through unchanged
+    try:
+        context_section = ""
+        if conversation_context:
+            context_section = f"\nRecent conversation:\n{conversation_context}\n"
+
+        prompt = f"""Rewrite the following user question to be more specific and technical, suitable for semantic search in a knowledge base about Python, machine learning, databases, and AI.
+{context_section}
+Original question: {original_query}
+
+Rules:
+- Resolve any pronouns like "it", "that", or "they" using the conversation context
+- Make the question more precise and formal
+- Return only the rewritten question, nothing else"""
+
+        response = _client.chat.completions.create(
+            model=OPENAI_MODEL,
+            messages=[{"role": "user", "content": prompt}],
+            temperature=0.1,
+        )
+        rewritten = response.choices[0].message.content.strip()
+        if rewritten and len(rewritten) < 500:
+            return rewritten
+        return original_query
+    except Exception:
+        return original_query
 
 
 def decompose_query(query):
@@ -91,7 +115,23 @@ def decompose_query(query):
     #   4. Return at most 3 sub-questions
     #   5. Wrap in try/except — if anything fails, return [query]
     #
-    return [query]  # placeholder — query is not decomposed
+    try:
+        prompt = f"""If the following question covers multiple distinct topics, split it into 2-3 simpler sub-questions. If it's already a single focused question, return it as-is.
+
+Question: {query}
+
+Return only the questions, one per line, with no numbering or extra text."""
+
+        response = _client.chat.completions.create(
+            model=OPENAI_MODEL,
+            messages=[{"role": "user", "content": prompt}],
+            temperature=0.1,
+        )
+        lines = response.choices[0].message.content.strip().split("\n")
+        sub_questions = [line.strip() for line in lines if line.strip() and len(line.strip()) > 5]
+        return sub_questions[:3] if sub_questions else [query]
+    except Exception:
+        return [query]
 
 
 def multi_hop_retrieve(query, n_per_hop=2):
