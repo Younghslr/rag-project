@@ -156,11 +156,11 @@ def run_rag(query, conversation_history=None):
     history_context = ""
     if conversation_history and len(conversation_history) > 0:
         history_context = conversation_history.get_formatted_history()
-    query = rewrite_query(query, history_context)
+    rewritten_query = rewrite_query(query, history_context)
     # ─────────────────────────────────────────────────────────────────────────
 
     # ── Week 10: Core Retrieval — already complete ───────────────────────────
-    documents, distances = retrieve_context(query)
+    documents, distances = retrieve_context(rewritten_query)
 
     # ── Week 14: Filtering ────────────────────────────────────────────────────
     documents, distances = filter_by_threshold(documents, distances, SIMILARITY_THRESHOLD)
@@ -168,16 +168,17 @@ def run_rag(query, conversation_history=None):
         return {"answer": get_fallback_response(), "sources": [], "distances": [],
                 "confidence": 0.0,
                 "grounding": {"verdict": "N/A", "is_grounded": True, "warning": ""},
+                "rewritten_query": rewritten_query,
                 "error": ""}
     # ─────────────────────────────────────────────────────────────────────────
 
     # ── Week 10: Core Generation ──────────────────────────────────────────────
     try:
-        answer = generate_answer(query, documents, conversation_history)
+        answer = generate_answer(rewritten_query, documents, conversation_history)
     except Exception as e:
         error_msg = handle_api_error(e)
         return {"answer": error_msg, "sources": [], "distances": [],
-                "confidence": 0.0, "grounding": {}, "error": error_msg}
+                "confidence": 0.0, "grounding": {}, "rewritten_query": rewritten_query, "error": error_msg}
 
     # ── Week 13 TODO ──────────────────────────────────────────────────────────
     # Monitor the response quality after generation.
@@ -197,7 +198,7 @@ def run_rag(query, conversation_history=None):
 
     # ── Week 11: Save conversation history ───────────────────────────────────
     if conversation_history is not None:
-        conversation_history.add_message("user", query)
+        conversation_history.add_message("user", rewritten_query)
         conversation_history.add_message("assistant", answer)
     # ─────────────────────────────────────────────────────────────────────────
 
@@ -207,6 +208,7 @@ def run_rag(query, conversation_history=None):
         "distances": distances,
         "confidence": confidence,
         "grounding": grounding,
+        "rewritten_query": rewritten_query,
         "error": "",
     }
 
