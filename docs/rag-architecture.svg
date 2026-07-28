@@ -1,0 +1,127 @@
+<svg viewBox="0 0 900 560" xmlns="http://www.w3.org/2000/svg" font-family="system-ui, -apple-system, sans-serif">
+  <title>RAG Application Architecture Diagram</title>
+
+  <defs>
+    <marker id="arrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L8,3 z" fill="#6b7280"/>
+    </marker>
+    <marker id="arrow-green" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L8,3 z" fill="#10b981"/>
+    </marker>
+  </defs>
+
+  <rect width="900" height="560" fill="#f9fafb" rx="12"/>
+  <text x="450" y="32" text-anchor="middle" font-size="15" font-weight="700" fill="#111827">RAG Application — High-Level Architecture</text>
+
+  <!-- INGESTION PATH -->
+  <text x="450" y="66" text-anchor="middle" font-size="10" fill="#9ca3af" letter-spacing="1">DOCUMENT INGESTION (startup)</text>
+
+  <rect x="30" y="76" width="130" height="52" rx="8" fill="#e0f2fe" stroke="#38bdf8" stroke-width="1.5"/>
+  <text x="95" y="97" text-anchor="middle" font-size="11" font-weight="600" fill="#0369a1">Source Docs</text>
+  <text x="95" y="113" text-anchor="middle" font-size="9" fill="#0369a1">20 text chunks</text>
+  <text x="95" y="124" text-anchor="middle" font-size="8" fill="#0369a1">data_loader.py</text>
+
+  <line x1="162" y1="102" x2="218" y2="102" stroke="#6b7280" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <rect x="220" y="76" width="140" height="52" rx="8" fill="#e0f2fe" stroke="#38bdf8" stroke-width="1.5"/>
+  <text x="290" y="97" text-anchor="middle" font-size="11" font-weight="600" fill="#0369a1">Embedding Service</text>
+  <text x="290" y="113" text-anchor="middle" font-size="9" fill="#0369a1">text-embedding-3-small</text>
+  <text x="290" y="124" text-anchor="middle" font-size="8" fill="#0369a1">embeddings.py</text>
+
+  <line x1="362" y1="102" x2="418" y2="102" stroke="#6b7280" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <rect x="420" y="76" width="130" height="52" rx="8" fill="#e0f2fe" stroke="#38bdf8" stroke-width="1.5"/>
+  <text x="485" y="97" text-anchor="middle" font-size="11" font-weight="600" fill="#0369a1">ChromaDB</text>
+  <text x="485" y="113" text-anchor="middle" font-size="9" fill="#0369a1">Vector store</text>
+  <text x="485" y="124" text-anchor="middle" font-size="8" fill="#0369a1">vector_store.py</text>
+
+  <line x1="30" y1="148" x2="870" y2="148" stroke="#e5e7eb" stroke-width="1" stroke-dasharray="4,3"/>
+  <text x="450" y="164" text-anchor="middle" font-size="10" fill="#9ca3af" letter-spacing="1">QUERY PIPELINE (per request)</text>
+
+  <!-- QUERY PATH -->
+  <rect x="30" y="176" width="110" height="52" rx="8" fill="#f3f4f6" stroke="#6b7280" stroke-width="1.5"/>
+  <text x="85" y="197" text-anchor="middle" font-size="11" font-weight="600" fill="#374151">User</text>
+  <text x="85" y="213" text-anchor="middle" font-size="9" fill="#6b7280">Types question</text>
+  <text x="85" y="224" text-anchor="middle" font-size="8" fill="#9ca3af">Streamlit UI / app.py</text>
+
+  <line x1="142" y1="202" x2="178" y2="202" stroke="#6b7280" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <text x="160" y="196" text-anchor="middle" font-size="8" fill="#9ca3af">query</text>
+
+  <rect x="180" y="176" width="120" height="52" rx="8" fill="#fef9c3" stroke="#eab308" stroke-width="1.5"/>
+  <text x="240" y="197" text-anchor="middle" font-size="11" font-weight="600" fill="#713f12">Security</text>
+  <text x="240" y="213" text-anchor="middle" font-size="9" fill="#713f12">Validate &amp; sanitize</text>
+  <text x="240" y="224" text-anchor="middle" font-size="8" fill="#92400e">security.py</text>
+
+  <line x1="302" y1="202" x2="338" y2="202" stroke="#6b7280" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <rect x="340" y="176" width="130" height="52" rx="8" fill="#fef9c3" stroke="#eab308" stroke-width="1.5"/>
+  <text x="405" y="197" text-anchor="middle" font-size="11" font-weight="600" fill="#713f12">Query Rewriter</text>
+  <text x="405" y="213" text-anchor="middle" font-size="9" fill="#713f12">Improve for search</text>
+  <text x="405" y="224" text-anchor="middle" font-size="8" fill="#92400e">workflow.py</text>
+
+  <line x1="472" y1="202" x2="508" y2="202" stroke="#6b7280" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <rect x="510" y="176" width="130" height="52" rx="8" fill="#fef9c3" stroke="#eab308" stroke-width="1.5"/>
+  <text x="575" y="197" text-anchor="middle" font-size="11" font-weight="600" fill="#713f12">Embed Query</text>
+  <text x="575" y="213" text-anchor="middle" font-size="9" fill="#713f12">Vectorize question</text>
+  <text x="575" y="224" text-anchor="middle" font-size="8" fill="#92400e">embeddings.py</text>
+
+  <line x1="575" y1="230" x2="575" y2="258" stroke="#6b7280" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <rect x="510" y="260" width="130" height="52" rx="8" fill="#fef9c3" stroke="#eab308" stroke-width="1.5"/>
+  <text x="575" y="281" text-anchor="middle" font-size="11" font-weight="600" fill="#713f12">ChromaDB</text>
+  <text x="575" y="297" text-anchor="middle" font-size="9" fill="#713f12">Semantic search</text>
+  <text x="575" y="308" text-anchor="middle" font-size="8" fill="#92400e">vector_store.py</text>
+
+  <line x1="508" y1="286" x2="472" y2="286" stroke="#6b7280" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <text x="490" y="280" text-anchor="middle" font-size="8" fill="#9ca3af">docs</text>
+
+  <rect x="340" y="260" width="130" height="52" rx="8" fill="#fef9c3" stroke="#eab308" stroke-width="1.5"/>
+  <text x="405" y="281" text-anchor="middle" font-size="11" font-weight="600" fill="#713f12">Filter</text>
+  <text x="405" y="297" text-anchor="middle" font-size="9" fill="#713f12">Threshold cutoff</text>
+  <text x="405" y="308" text-anchor="middle" font-size="8" fill="#92400e">filters.py</text>
+
+  <line x1="338" y1="286" x2="302" y2="286" stroke="#6b7280" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <text x="320" y="280" text-anchor="middle" font-size="8" fill="#9ca3af">context</text>
+
+  <rect x="180" y="260" width="120" height="52" rx="8" fill="#d1fae5" stroke="#10b981" stroke-width="1.5"/>
+  <text x="240" y="281" text-anchor="middle" font-size="11" font-weight="600" fill="#065f46">GPT-4o-mini</text>
+  <text x="240" y="297" text-anchor="middle" font-size="9" fill="#065f46">Generate answer</text>
+  <text x="240" y="308" text-anchor="middle" font-size="8" fill="#047857">rag_pipeline.py</text>
+
+  <line x1="178" y1="286" x2="142" y2="286" stroke="#10b981" stroke-width="1.5" marker-end="url(#arrow-green)"/>
+
+  <rect x="30" y="260" width="110" height="52" rx="8" fill="#d1fae5" stroke="#10b981" stroke-width="1.5"/>
+  <text x="85" y="278" text-anchor="middle" font-size="11" font-weight="600" fill="#065f46">Hallucination</text>
+  <text x="85" y="292" text-anchor="middle" font-size="9" fill="#065f46">Monitor</text>
+  <text x="85" y="306" text-anchor="middle" font-size="8" fill="#047857">monitoring.py</text>
+
+  <line x1="85" y1="314" x2="85" y2="368" stroke="#10b981" stroke-width="1.5" marker-end="url(#arrow-green)"/>
+  <text x="97" y="346" font-size="8" fill="#9ca3af">verdict</text>
+
+  <rect x="30" y="370" width="110" height="52" rx="8" fill="#f3f4f6" stroke="#6b7280" stroke-width="1.5"/>
+  <text x="85" y="391" text-anchor="middle" font-size="11" font-weight="600" fill="#374151">Response</text>
+  <text x="85" y="407" text-anchor="middle" font-size="9" fill="#6b7280">Answer + sources</text>
+  <text x="85" y="418" text-anchor="middle" font-size="8" fill="#9ca3af">app.py</text>
+
+  <!-- CONVERSATION HISTORY -->
+  <rect x="700" y="176" width="140" height="52" rx="8" fill="#f3e8ff" stroke="#a855f7" stroke-width="1.5"/>
+  <text x="770" y="197" text-anchor="middle" font-size="11" font-weight="600" fill="#581c87">Conversation</text>
+  <text x="770" y="213" text-anchor="middle" font-size="9" fill="#581c87">History</text>
+  <text x="770" y="224" text-anchor="middle" font-size="8" fill="#7e22ce">conversation.py</text>
+
+  <line x1="700" y1="196" x2="472" y2="196" stroke="#a855f7" stroke-width="1.2" stroke-dasharray="4,2" marker-end="url(#arrow)"/>
+  <line x1="472" y1="208" x2="700" y2="208" stroke="#a855f7" stroke-width="1.2" stroke-dasharray="4,2" marker-end="url(#arrow)"/>
+
+  <!-- LEGEND -->
+  <text x="30" y="448" font-size="10" font-weight="600" fill="#6b7280">LEGEND</text>
+  <rect x="30" y="456" width="14" height="10" rx="2" fill="#e0f2fe" stroke="#38bdf8" stroke-width="1"/>
+  <text x="50" y="466" font-size="9" fill="#374151">Ingestion / Storage</text>
+  <rect x="145" y="456" width="14" height="10" rx="2" fill="#fef9c3" stroke="#eab308" stroke-width="1"/>
+  <text x="165" y="466" font-size="9" fill="#374151">Query Processing</text>
+  <rect x="270" y="456" width="14" height="10" rx="2" fill="#d1fae5" stroke="#10b981" stroke-width="1"/>
+  <text x="290" y="466" font-size="9" fill="#374151">Generation / Grounding</text>
+  <rect x="415" y="456" width="14" height="10" rx="2" fill="#f3e8ff" stroke="#a855f7" stroke-width="1"/>
+  <text x="435" y="466" font-size="9" fill="#374151">Memory</text>
+  <text x="450" y="500" text-anchor="middle" font-size="10" fill="#9ca3af">Data flows left-to-right on ingestion (top), right-to-left on retrieval (middle), top-to-bottom on generation (bottom-left)</text>
+</svg>
