@@ -2,83 +2,95 @@
 
 ![Architecture Diagram](docs/rag-architecture.svg)
 
-## Overview
-
-This application is a Retrieval-Augmented Generation (RAG) system. Instead of relying solely on an AI model's training data, it retrieves relevant documents from a local knowledge base and uses those as context when generating answers. The result is more accurate, grounded responses.
-
 ---
 
 ## Components
 
-### Document Ingestion (runs once at startup)
+### Startup — Document Ingestion (runs once per session)
 
-| Component | File | Role |
-|-----------|------|------|
-| Source Docs | `data_loader.py` | 20 pre-written text chunks covering Python, ML, databases, and AI |
-| Embedding Service | `embeddings.py` | Converts each document into a numeric vector using OpenAI `text-embedding-3-small` |
-| ChromaDB | `vector_store.py` | Stores document vectors so they can be searched by similarity |
+ChromaDB is **in-memory** (`chromadb.Client()`). It resets every time the app restarts, so ingestion runs automatically at startup each session.
 
-At startup, all 20 documents are embedded and stored in ChromaDB. This only happens once per session.
-
----
-
-### Query Pipeline (runs on every user question)
-
-| Component | File | Role |
-|-----------|------|------|
-| User / Streamlit UI | `app.py` | Accepts the user's question through a chat interface |
-| Security Validator | `security.py` | Checks for empty input, prompt injection attempts, and queries over 500 characters |
-| Query Rewriter | `workflow.py` | Uses GPT-4o-mini to rephrase the question for better semantic search |
-| Embed Query | `embeddings.py` | Converts the rewritten query into a vector |
-| ChromaDB Search | `vector_store.py` | Finds the top-K most similar documents using cosine distance |
-| Similarity Filter | `filters.py` | Drops documents that are too dissimilar (distance above threshold) |
-| GPT-4o-mini | `rag_pipeline.py` | Generates an answer using the retrieved documents as context |
-| Hallucination Monitor | `monitoring.py` | Uses a second LLM call to verify the answer is grounded in the source documents |
-| Response | `app.py` | Displays the answer, sources, confidence score, and grounding verdict |
+| Component | File | What it does |
+|-----------|------|--------------|
+| Source Docs | `data_loader.py` | Returns 20 hardcoded paragraphs covering Python, ML, databases, and AI |
+| Embed Documents | `embeddings.py` | Batch-embeds all 20 docs via OpenAI `text-embedding-3-small` |
+| ChromaDB | `vector_store.py` | Stores doc vectors in an in-memory collection named `"tech_docs"` |
 
 ---
 
-### Memory
+### Per-Request — Query Pipeline
 
-| Component | File | Role |
-|-----------|------|------|
-| Conversation History | `conversation.py` | Stores recent turns so follow-up questions resolve correctly (e.g., "what else can *it* do?") |
+Every user question flows through these steps in order:
 
-The conversation history feeds into both the Query Rewriter (to resolve pronouns) and the generation prompt (so GPT-4o-mini has prior context).
+| Step | Component | File | What it does |
+|------|-----------|------|--------------|
+| 1 | Security Validator | `security.py` | Rejects empty input, queries over 500 chars, and 10 prompt-injection patterns |
+| 2 | Query Rewriter | `workflow.py` | Calls `gpt-4o-mini` (temp=0.1) to rephrase the query for better semantic search; resolves pronouns using conversation history |
+| 3 | Embed Query | `embeddings.py` | Embeds the rewritten query via `text-embedding-3-small` |
+| 4 | ChromaDB Search | `vector_store.py` | Finds top-3 most similar documents by L2 distance (same collection as ingestion) |
+| 5 | Similarity Filter | `filters.py` | Drops documents where L2 distance > 1.0 (`SIMILARITY_THRESHOLD`) |
+| 5a | *(fallback)* | `filters.py` | If **no** documents pass the filter, returns a fallback message immediately — GPT-4o-mini is never called |
+| 6 | GPT-4o-mini | `rag_pipeline.py` | Generates an answer using the filtered docs as context, plus conversation history injected into the prompt |
+| 7 | Hallucination Monitor | `monitoring.py` | Second OpenAI call (temp=0.0) acting as LLM-as-judge — returns GROUNDED / PARTIAL / HALLUCINATED |
+| 8 | Response | `app.py` | Displays answer, source documents, confidence score, grounding verdict, and timestamp |
 
 ---
 
-## Data Flow
+### Memory — Conversation History
 
-**Ingestion path** (top of diagram, blue):
-```
-Source Docs → Embedding Service → ChromaDB (stored)
-```
+`conversation.py` stores the last 10 turns (user + assistant messages) in session state.
 
-**Query path** (middle and bottom, yellow → green):
-```
-User query
-  → Security Validator (block injections)
-  → Query Rewriter (improve phrasing)
-  → Embed Query (vectorize)
-  → ChromaDB (find similar docs)
-  → Similarity Filter (drop weak matches)
-  → GPT-4o-mini (generate answer with context)
-  → Hallucination Monitor (verify grounding)
-  → Response shown to user
-```
+It feeds into **two** places each request:
+- **Query Rewriter** — so vague follow-ups like "what else can it do?" resolve correctly
+- **GPT-4o-mini generation prompt** — so the model has full prior context when answering
 
-**Memory path** (purple, bidirectional):
+After each successful response, the rewritten query and answer are saved back to history.
+
+---
+
+### External Service — OpenAI API
+
+Four components make API calls to OpenAI per query:
+
+| Call | Component | Model | Purpose |
+|------|-----------|-------|---------|
+| ① | Embed Documents (startup) | `text-embedding-3-small` | Vectorize all 20 source docs |
+| ② | Query Rewriter | `gpt-4o-mini` | Rephrase query for better retrieval |
+| ③ | Embed Query | `text-embedding-3-small` | Vectorize the rewritten query |
+| ④ | GPT-4o-mini + Hallucination Monitor | `gpt-4o-mini` | Generate answer + verify grounding |
+
+---
+
+## Data Flow Summary
+
 ```
-Conversation History ↔ Query Rewriter / Generation Prompt
+STARTUP:
+  Source Docs → [OpenAI embed] → ChromaDB (in-memory)
+
+PER REQUEST:
+  User query
+    → Security (block injections / bad input)
+    → Query Rewriter [OpenAI ②] + Conversation History
+    → Embed Query [OpenAI ③]
+    → ChromaDB similarity search (same store as startup)
+    → Similarity Filter
+        ├── no match → Fallback response (pipeline stops here)
+        └── match → GPT-4o-mini [OpenAI ④] + Conversation History in prompt
+                        → Hallucination Monitor [OpenAI ④]
+                        → Response displayed
+                        → Save turn to Conversation History
 ```
 
 ---
 
 ## Tech Stack
 
-- **Frontend**: Streamlit
-- **LLM**: OpenAI GPT-4o-mini
-- **Embeddings**: OpenAI text-embedding-3-small
-- **Vector Store**: ChromaDB (local, in-memory)
-- **Language**: Python 3.14
+| Layer | Technology |
+|-------|-----------|
+| Frontend | Streamlit |
+| LLM | OpenAI GPT-4o-mini |
+| Embeddings | OpenAI text-embedding-3-small |
+| Vector Store | ChromaDB (local, in-memory) |
+| Language | Python 3.14 |
+| Security | Custom prompt-injection detection (`security.py`) |
+| Monitoring | LLM-as-judge hallucination detection (`monitoring.py`) |

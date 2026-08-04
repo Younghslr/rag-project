@@ -1,127 +1,186 @@
-<svg viewBox="0 0 900 560" xmlns="http://www.w3.org/2000/svg" font-family="system-ui, -apple-system, sans-serif">
-  <title>RAG Application Architecture Diagram</title>
+<svg viewBox="0 0 980 670" xmlns="http://www.w3.org/2000/svg" font-family="system-ui, -apple-system, sans-serif" font-size="11">
+  <title>RAG Application — Architecture Diagram</title>
 
   <defs>
-    <marker id="arrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
-      <path d="M0,0 L0,6 L8,3 z" fill="#6b7280"/>
-    </marker>
-    <marker id="arrow-green" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
-      <path d="M0,0 L0,6 L8,3 z" fill="#10b981"/>
-    </marker>
+    <marker id="arr" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto"><path d="M0,0 L0,6 L7,3 z" fill="#6b7280"/></marker>
+    <marker id="arr-blue" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto"><path d="M0,0 L0,6 L7,3 z" fill="#3b82f6"/></marker>
+    <marker id="arr-green" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto"><path d="M0,0 L0,6 L7,3 z" fill="#10b981"/></marker>
+    <marker id="arr-purple" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto"><path d="M0,0 L0,6 L7,3 z" fill="#a855f7"/></marker>
+    <marker id="arr-orange" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto"><path d="M0,0 L0,6 L7,3 z" fill="#f97316"/></marker>
   </defs>
 
-  <rect width="900" height="560" fill="#f9fafb" rx="12"/>
-  <text x="450" y="32" text-anchor="middle" font-size="15" font-weight="700" fill="#111827">RAG Application — High-Level Architecture</text>
+  <rect width="980" height="670" fill="#f8fafc" rx="12"/>
+  <text x="490" y="30" text-anchor="middle" font-size="14" font-weight="700" fill="#0f172a">RAG Application — Architecture (verified against source code)</text>
 
-  <!-- INGESTION PATH -->
-  <text x="450" y="66" text-anchor="middle" font-size="10" fill="#9ca3af" letter-spacing="1">DOCUMENT INGESTION (startup)</text>
+  <!-- OpenAI External Service -->
+  <rect x="720" y="45" width="240" height="70" rx="10" fill="#fff7ed" stroke="#f97316" stroke-width="1.5" stroke-dasharray="5,3"/>
+  <text x="840" y="67" text-anchor="middle" font-size="11" font-weight="700" fill="#9a3412">OpenAI API</text>
+  <text x="840" y="83" text-anchor="middle" font-size="9.5" fill="#9a3412">text-embedding-3-small</text>
+  <text x="840" y="98" text-anchor="middle" font-size="9.5" fill="#9a3412">gpt-4o-mini</text>
+  <text x="840" y="110" text-anchor="middle" font-size="8" fill="#c2410c">External — called 4× per query</text>
 
-  <rect x="30" y="76" width="130" height="52" rx="8" fill="#e0f2fe" stroke="#38bdf8" stroke-width="1.5"/>
-  <text x="95" y="97" text-anchor="middle" font-size="11" font-weight="600" fill="#0369a1">Source Docs</text>
-  <text x="95" y="113" text-anchor="middle" font-size="9" fill="#0369a1">20 text chunks</text>
-  <text x="95" y="124" text-anchor="middle" font-size="8" fill="#0369a1">data_loader.py</text>
+  <!-- Startup Band -->
+  <rect x="12" y="48" width="690" height="85" rx="8" fill="#eff6ff" stroke="#bfdbfe" stroke-width="1"/>
+  <text x="20" y="63" font-size="9" font-weight="600" fill="#3b82f6" letter-spacing="0.5">STARTUP — Document Ingestion (runs once per session; ChromaDB resets on app restart)</text>
 
-  <line x1="162" y1="102" x2="218" y2="102" stroke="#6b7280" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <!-- Source Docs -->
+  <rect x="25" y="70" width="130" height="54" rx="7" fill="#dbeafe" stroke="#60a5fa" stroke-width="1.5"/>
+  <text x="90" y="89" text-anchor="middle" font-weight="600" fill="#1e40af">Source Docs</text>
+  <text x="90" y="103" text-anchor="middle" font-size="9" fill="#1d4ed8">20 paragraphs</text>
+  <text x="90" y="116" text-anchor="middle" font-size="8" fill="#3b82f6">data_loader.py</text>
 
-  <rect x="220" y="76" width="140" height="52" rx="8" fill="#e0f2fe" stroke="#38bdf8" stroke-width="1.5"/>
-  <text x="290" y="97" text-anchor="middle" font-size="11" font-weight="600" fill="#0369a1">Embedding Service</text>
-  <text x="290" y="113" text-anchor="middle" font-size="9" fill="#0369a1">text-embedding-3-small</text>
-  <text x="290" y="124" text-anchor="middle" font-size="8" fill="#0369a1">embeddings.py</text>
+  <line x1="157" y1="97" x2="188" y2="97" stroke="#6b7280" stroke-width="1.5" marker-end="url(#arr)"/>
 
-  <line x1="362" y1="102" x2="418" y2="102" stroke="#6b7280" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <!-- Embed Documents -->
+  <rect x="190" y="70" width="150" height="54" rx="7" fill="#dbeafe" stroke="#60a5fa" stroke-width="1.5"/>
+  <text x="265" y="89" text-anchor="middle" font-weight="600" fill="#1e40af">Embed Documents</text>
+  <text x="265" y="103" text-anchor="middle" font-size="9" fill="#1d4ed8">batch embed all docs</text>
+  <text x="265" y="116" text-anchor="middle" font-size="8" fill="#3b82f6">embeddings.py → OpenAI ①</text>
 
-  <rect x="420" y="76" width="130" height="52" rx="8" fill="#e0f2fe" stroke="#38bdf8" stroke-width="1.5"/>
-  <text x="485" y="97" text-anchor="middle" font-size="11" font-weight="600" fill="#0369a1">ChromaDB</text>
-  <text x="485" y="113" text-anchor="middle" font-size="9" fill="#0369a1">Vector store</text>
-  <text x="485" y="124" text-anchor="middle" font-size="8" fill="#0369a1">vector_store.py</text>
+  <line x1="342" y1="97" x2="388" y2="97" stroke="#6b7280" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="366" y="90" text-anchor="middle" font-size="8" fill="#9ca3af">write</text>
 
-  <line x1="30" y1="148" x2="870" y2="148" stroke="#e5e7eb" stroke-width="1" stroke-dasharray="4,3"/>
-  <text x="450" y="164" text-anchor="middle" font-size="10" fill="#9ca3af" letter-spacing="1">QUERY PIPELINE (per request)</text>
+  <!-- ChromaDB SHARED -->
+  <rect x="390" y="55" width="175" height="115" rx="8" fill="#e0f2fe" stroke="#0ea5e9" stroke-width="2"/>
+  <text x="477" y="77" text-anchor="middle" font-size="11" font-weight="700" fill="#0c4a6e">ChromaDB</text>
+  <text x="477" y="93" text-anchor="middle" font-size="9.5" fill="#0369a1">SHARED — one collection</text>
+  <text x="477" y="107" text-anchor="middle" font-size="9" fill="#0369a1">used by both paths</text>
+  <text x="477" y="121" text-anchor="middle" font-size="8" fill="#0284c7">in-memory · resets on restart</text>
+  <text x="477" y="134" text-anchor="middle" font-size="8" fill="#0284c7">collection: "tech_docs"</text>
+  <text x="477" y="147" text-anchor="middle" font-size="8" fill="#0284c7">vector_store.py</text>
 
-  <!-- QUERY PATH -->
-  <rect x="30" y="176" width="110" height="52" rx="8" fill="#f3f4f6" stroke="#6b7280" stroke-width="1.5"/>
-  <text x="85" y="197" text-anchor="middle" font-size="11" font-weight="600" fill="#374151">User</text>
-  <text x="85" y="213" text-anchor="middle" font-size="9" fill="#6b7280">Types question</text>
-  <text x="85" y="224" text-anchor="middle" font-size="8" fill="#9ca3af">Streamlit UI / app.py</text>
+  <!-- Embed Docs → OpenAI -->
+  <line x1="265" y1="70" x2="730" y2="68" stroke="#f97316" stroke-width="1" stroke-dasharray="3,2" marker-end="url(#arr-orange)"/>
 
-  <line x1="142" y1="202" x2="178" y2="202" stroke="#6b7280" stroke-width="1.5" marker-end="url(#arrow)"/>
-  <text x="160" y="196" text-anchor="middle" font-size="8" fill="#9ca3af">query</text>
+  <!-- Divider -->
+  <line x1="12" y1="178" x2="968" y2="178" stroke="#e2e8f0" stroke-width="1.5"/>
+  <text x="490" y="195" text-anchor="middle" font-size="9" font-weight="600" fill="#64748b" letter-spacing="0.5">PER REQUEST — Query Pipeline</text>
 
-  <rect x="180" y="176" width="120" height="52" rx="8" fill="#fef9c3" stroke="#eab308" stroke-width="1.5"/>
-  <text x="240" y="197" text-anchor="middle" font-size="11" font-weight="600" fill="#713f12">Security</text>
-  <text x="240" y="213" text-anchor="middle" font-size="9" fill="#713f12">Validate &amp; sanitize</text>
-  <text x="240" y="224" text-anchor="middle" font-size="8" fill="#92400e">security.py</text>
+  <!-- User -->
+  <rect x="12" y="202" width="115" height="58" rx="7" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1.5"/>
+  <text x="69" y="223" text-anchor="middle" font-weight="600" fill="#334155">User</text>
+  <text x="69" y="237" text-anchor="middle" font-size="9" fill="#475569">types question</text>
+  <text x="69" y="251" text-anchor="middle" font-size="8" fill="#64748b">Streamlit / app.py</text>
 
-  <line x1="302" y1="202" x2="338" y2="202" stroke="#6b7280" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <line x1="129" y1="231" x2="158" y2="231" stroke="#6b7280" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="144" y="225" text-anchor="middle" font-size="8" fill="#9ca3af">query</text>
 
-  <rect x="340" y="176" width="130" height="52" rx="8" fill="#fef9c3" stroke="#eab308" stroke-width="1.5"/>
-  <text x="405" y="197" text-anchor="middle" font-size="11" font-weight="600" fill="#713f12">Query Rewriter</text>
-  <text x="405" y="213" text-anchor="middle" font-size="9" fill="#713f12">Improve for search</text>
-  <text x="405" y="224" text-anchor="middle" font-size="8" fill="#92400e">workflow.py</text>
+  <!-- Security Validator -->
+  <rect x="160" y="202" width="130" height="58" rx="7" fill="#fefce8" stroke="#eab308" stroke-width="1.5"/>
+  <text x="225" y="223" text-anchor="middle" font-weight="600" fill="#713f12">Security</text>
+  <text x="225" y="237" text-anchor="middle" font-size="9" fill="#713f12">validate + sanitize</text>
+  <text x="225" y="251" text-anchor="middle" font-size="8" fill="#92400e">security.py</text>
 
-  <line x1="472" y1="202" x2="508" y2="202" stroke="#6b7280" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <line x1="292" y1="231" x2="318" y2="231" stroke="#6b7280" stroke-width="1.5" marker-end="url(#arr)"/>
 
-  <rect x="510" y="176" width="130" height="52" rx="8" fill="#fef9c3" stroke="#eab308" stroke-width="1.5"/>
-  <text x="575" y="197" text-anchor="middle" font-size="11" font-weight="600" fill="#713f12">Embed Query</text>
-  <text x="575" y="213" text-anchor="middle" font-size="9" fill="#713f12">Vectorize question</text>
-  <text x="575" y="224" text-anchor="middle" font-size="8" fill="#92400e">embeddings.py</text>
+  <!-- Query Rewriter -->
+  <rect x="320" y="202" width="148" height="58" rx="7" fill="#fefce8" stroke="#eab308" stroke-width="1.5"/>
+  <text x="394" y="220" text-anchor="middle" font-weight="600" fill="#713f12">Query Rewriter</text>
+  <text x="394" y="234" text-anchor="middle" font-size="9" fill="#713f12">rephrase for search</text>
+  <text x="394" y="248" text-anchor="middle" font-size="8" fill="#92400e">workflow.py → OpenAI ②</text>
+  <text x="394" y="258" text-anchor="middle" font-size="7.5" fill="#b45309">temp=0.1 · gpt-4o-mini</text>
 
-  <line x1="575" y1="230" x2="575" y2="258" stroke="#6b7280" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <line x1="470" y1="231" x2="498" y2="231" stroke="#6b7280" stroke-width="1.5" marker-end="url(#arr)"/>
 
-  <rect x="510" y="260" width="130" height="52" rx="8" fill="#fef9c3" stroke="#eab308" stroke-width="1.5"/>
-  <text x="575" y="281" text-anchor="middle" font-size="11" font-weight="600" fill="#713f12">ChromaDB</text>
-  <text x="575" y="297" text-anchor="middle" font-size="9" fill="#713f12">Semantic search</text>
-  <text x="575" y="308" text-anchor="middle" font-size="8" fill="#92400e">vector_store.py</text>
+  <!-- Embed Query -->
+  <rect x="500" y="202" width="148" height="58" rx="7" fill="#fefce8" stroke="#eab308" stroke-width="1.5"/>
+  <text x="574" y="220" text-anchor="middle" font-weight="600" fill="#713f12">Embed Query</text>
+  <text x="574" y="234" text-anchor="middle" font-size="9" fill="#713f12">vectorize rewritten query</text>
+  <text x="574" y="248" text-anchor="middle" font-size="8" fill="#92400e">embeddings.py → OpenAI ③</text>
+  <text x="574" y="258" text-anchor="middle" font-size="7.5" fill="#b45309">text-embedding-3-small</text>
 
-  <line x1="508" y1="286" x2="472" y2="286" stroke="#6b7280" stroke-width="1.5" marker-end="url(#arrow)"/>
-  <text x="490" y="280" text-anchor="middle" font-size="8" fill="#9ca3af">docs</text>
+  <!-- Embed Query → ChromaDB (L-shaped up) -->
+  <polyline points="574,202 574,170 477,170" fill="none" stroke="#6b7280" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="530" y="163" text-anchor="middle" font-size="8" fill="#9ca3af">similarity search (top-3)</text>
 
-  <rect x="340" y="260" width="130" height="52" rx="8" fill="#fef9c3" stroke="#eab308" stroke-width="1.5"/>
-  <text x="405" y="281" text-anchor="middle" font-size="11" font-weight="600" fill="#713f12">Filter</text>
-  <text x="405" y="297" text-anchor="middle" font-size="9" fill="#713f12">Threshold cutoff</text>
-  <text x="405" y="308" text-anchor="middle" font-size="8" fill="#92400e">filters.py</text>
+  <!-- ChromaDB → down to Filter -->
+  <line x1="477" y1="172" x2="477" y2="328" stroke="#0ea5e9" stroke-width="1.5" marker-end="url(#arr-blue)"/>
+  <text x="490" y="255" font-size="8" fill="#0284c7">ranked results</text>
+  <text x="490" y="266" font-size="8" fill="#0284c7">+ distances</text>
 
-  <line x1="338" y1="286" x2="302" y2="286" stroke="#6b7280" stroke-width="1.5" marker-end="url(#arrow)"/>
-  <text x="320" y="280" text-anchor="middle" font-size="8" fill="#9ca3af">context</text>
+  <!-- Similarity Filter -->
+  <rect x="390" y="330" width="175" height="60" rx="7" fill="#fefce8" stroke="#eab308" stroke-width="1.5"/>
+  <text x="477" y="350" text-anchor="middle" font-weight="600" fill="#713f12">Similarity Filter</text>
+  <text x="477" y="365" text-anchor="middle" font-size="9" fill="#713f12">L2 distance ≤ 1.0 (threshold)</text>
+  <text x="477" y="380" text-anchor="middle" font-size="8" fill="#92400e">filters.py · SIMILARITY_THRESHOLD</text>
 
-  <rect x="180" y="260" width="120" height="52" rx="8" fill="#d1fae5" stroke="#10b981" stroke-width="1.5"/>
-  <text x="240" y="281" text-anchor="middle" font-size="11" font-weight="600" fill="#065f46">GPT-4o-mini</text>
-  <text x="240" y="297" text-anchor="middle" font-size="9" fill="#065f46">Generate answer</text>
-  <text x="240" y="308" text-anchor="middle" font-size="8" fill="#047857">rag_pipeline.py</text>
+  <!-- Filter → GPT-4o-mini -->
+  <line x1="388" y1="360" x2="348" y2="360" stroke="#6b7280" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="368" y="352" text-anchor="middle" font-size="8" fill="#9ca3af">context docs</text>
 
-  <line x1="178" y1="286" x2="142" y2="286" stroke="#10b981" stroke-width="1.5" marker-end="url(#arrow-green)"/>
+  <!-- Filter → Fallback (dashed red) -->
+  <line x1="567" y1="360" x2="618" y2="360" stroke="#dc2626" stroke-width="1.5" stroke-dasharray="4,2" marker-end="url(#arr)"/>
+  <text x="592" y="352" text-anchor="middle" font-size="8" fill="#dc2626">no match</text>
 
-  <rect x="30" y="260" width="110" height="52" rx="8" fill="#d1fae5" stroke="#10b981" stroke-width="1.5"/>
-  <text x="85" y="278" text-anchor="middle" font-size="11" font-weight="600" fill="#065f46">Hallucination</text>
-  <text x="85" y="292" text-anchor="middle" font-size="9" fill="#065f46">Monitor</text>
-  <text x="85" y="306" text-anchor="middle" font-size="8" fill="#047857">monitoring.py</text>
+  <!-- Fallback box -->
+  <rect x="620" y="330" width="165" height="60" rx="7" fill="#fef2f2" stroke="#dc2626" stroke-width="1.5" stroke-dasharray="5,2"/>
+  <text x="702" y="352" text-anchor="middle" font-weight="600" fill="#991b1b">Fallback Response</text>
+  <text x="702" y="366" text-anchor="middle" font-size="9" fill="#991b1b">returns early, no LLM call</text>
+  <text x="702" y="380" text-anchor="middle" font-size="8" fill="#b91c1c">filters.py · get_fallback_response()</text>
 
-  <line x1="85" y1="314" x2="85" y2="368" stroke="#10b981" stroke-width="1.5" marker-end="url(#arrow-green)"/>
-  <text x="97" y="346" font-size="8" fill="#9ca3af">verdict</text>
+  <!-- GPT-4o-mini -->
+  <rect x="160" y="330" width="185" height="60" rx="7" fill="#dcfce7" stroke="#22c55e" stroke-width="1.5"/>
+  <text x="252" y="350" text-anchor="middle" font-weight="600" fill="#14532d">GPT-4o-mini</text>
+  <text x="252" y="365" text-anchor="middle" font-size="9" fill="#14532d">generate answer from context</text>
+  <text x="252" y="380" text-anchor="middle" font-size="8" fill="#15803d">rag_pipeline.py → OpenAI ④</text>
 
-  <rect x="30" y="370" width="110" height="52" rx="8" fill="#f3f4f6" stroke="#6b7280" stroke-width="1.5"/>
-  <text x="85" y="391" text-anchor="middle" font-size="11" font-weight="600" fill="#374151">Response</text>
-  <text x="85" y="407" text-anchor="middle" font-size="9" fill="#6b7280">Answer + sources</text>
-  <text x="85" y="418" text-anchor="middle" font-size="8" fill="#9ca3af">app.py</text>
+  <!-- Conversation History -->
+  <rect x="810" y="265" width="155" height="75" rx="7" fill="#f3e8ff" stroke="#a855f7" stroke-width="1.5"/>
+  <text x="887" y="285" text-anchor="middle" font-weight="600" fill="#581c87">Conversation</text>
+  <text x="887" y="299" text-anchor="middle" font-size="9" fill="#581c87">History</text>
+  <text x="887" y="313" text-anchor="middle" font-size="9" fill="#581c87">last 10 turns in context</text>
+  <text x="887" y="328" text-anchor="middle" font-size="8" fill="#7e22ce">conversation.py</text>
 
-  <!-- CONVERSATION HISTORY -->
-  <rect x="700" y="176" width="140" height="52" rx="8" fill="#f3e8ff" stroke="#a855f7" stroke-width="1.5"/>
-  <text x="770" y="197" text-anchor="middle" font-size="11" font-weight="600" fill="#581c87">Conversation</text>
-  <text x="770" y="213" text-anchor="middle" font-size="9" fill="#581c87">History</text>
-  <text x="770" y="224" text-anchor="middle" font-size="8" fill="#7e22ce">conversation.py</text>
+  <!-- Conv History → Query Rewriter -->
+  <polyline points="810,280 750,280 750,231 470,231" fill="none" stroke="#a855f7" stroke-width="1.2" stroke-dasharray="4,2" marker-end="url(#arr-purple)"/>
+  <text x="770" y="274" font-size="8" fill="#a855f7">context for</text>
+  <text x="770" y="284" font-size="8" fill="#a855f7">pronoun resolve</text>
 
-  <line x1="700" y1="196" x2="472" y2="196" stroke="#a855f7" stroke-width="1.2" stroke-dasharray="4,2" marker-end="url(#arrow)"/>
-  <line x1="472" y1="208" x2="700" y2="208" stroke="#a855f7" stroke-width="1.2" stroke-dasharray="4,2" marker-end="url(#arrow)"/>
+  <!-- Conv History → GPT-4o-mini (THE KEY MISSING ARROW) -->
+  <polyline points="810,330 700,330 700,360 347,360" fill="none" stroke="#a855f7" stroke-width="1.5" marker-end="url(#arr-purple)"/>
+  <text x="720" y="350" text-anchor="middle" font-size="8" fill="#7e22ce">prior turns</text>
+  <text x="720" y="362" text-anchor="middle" font-size="8" fill="#7e22ce">in prompt</text>
 
-  <!-- LEGEND -->
-  <text x="30" y="448" font-size="10" font-weight="600" fill="#6b7280">LEGEND</text>
-  <rect x="30" y="456" width="14" height="10" rx="2" fill="#e0f2fe" stroke="#38bdf8" stroke-width="1"/>
-  <text x="50" y="466" font-size="9" fill="#374151">Ingestion / Storage</text>
-  <rect x="145" y="456" width="14" height="10" rx="2" fill="#fef9c3" stroke="#eab308" stroke-width="1"/>
-  <text x="165" y="466" font-size="9" fill="#374151">Query Processing</text>
-  <rect x="270" y="456" width="14" height="10" rx="2" fill="#d1fae5" stroke="#10b981" stroke-width="1"/>
-  <text x="290" y="466" font-size="9" fill="#374151">Generation / Grounding</text>
-  <rect x="415" y="456" width="14" height="10" rx="2" fill="#f3e8ff" stroke="#a855f7" stroke-width="1"/>
-  <text x="435" y="466" font-size="9" fill="#374151">Memory</text>
-  <text x="450" y="500" text-anchor="middle" font-size="10" fill="#9ca3af">Data flows left-to-right on ingestion (top), right-to-left on retrieval (middle), top-to-bottom on generation (bottom-left)</text>
+  <!-- GPT → Hallucination Monitor -->
+  <line x1="252" y1="392" x2="252" y2="438" stroke="#22c55e" stroke-width="1.5" marker-end="url(#arr-green)"/>
+
+  <!-- Hallucination Monitor -->
+  <rect x="160" y="440" width="185" height="60" rx="7" fill="#dcfce7" stroke="#22c55e" stroke-width="1.5"/>
+  <text x="252" y="460" text-anchor="middle" font-weight="600" fill="#14532d">Hallucination Monitor</text>
+  <text x="252" y="475" text-anchor="middle" font-size="9" fill="#14532d">LLM-as-judge, temp=0.0</text>
+  <text x="252" y="490" text-anchor="middle" font-size="8" fill="#15803d">monitoring.py → OpenAI ④</text>
+
+  <!-- Monitor → Response -->
+  <line x1="252" y1="502" x2="252" y2="548" stroke="#22c55e" stroke-width="1.5" marker-end="url(#arr-green)"/>
+  <text x="264" y="530" font-size="8" fill="#9ca3af">verdict</text>
+
+  <!-- Response -->
+  <rect x="160" y="550" width="185" height="60" rx="7" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1.5"/>
+  <text x="252" y="571" text-anchor="middle" font-weight="600" fill="#334155">Response</text>
+  <text x="252" y="585" text-anchor="middle" font-size="9" fill="#475569">answer + sources + confidence</text>
+  <text x="252" y="600" text-anchor="middle" font-size="8" fill="#64748b">app.py renders to Streamlit</text>
+
+  <!-- Response → save to Conv History -->
+  <polyline points="347,580 810,580 810,342" fill="none" stroke="#a855f7" stroke-width="1" stroke-dasharray="3,2" marker-end="url(#arr-purple)"/>
+  <text x="600" y="596" text-anchor="middle" font-size="8" fill="#a855f7">save turn (user query + answer)</text>
+
+  <!-- OpenAI connectors from query components -->
+  <polyline points="394,202 394,130 720,80" fill="none" stroke="#f97316" stroke-width="0.8" stroke-dasharray="3,2" marker-end="url(#arr-orange)"/>
+  <polyline points="574,202 574,130 720,82" fill="none" stroke="#f97316" stroke-width="0.8" stroke-dasharray="3,2" marker-end="url(#arr-orange)"/>
+  <polyline points="345,345 345,55 720,78" fill="none" stroke="#f97316" stroke-width="0.8" stroke-dasharray="3,2" marker-end="url(#arr-orange)"/>
+
+  <!-- Legend -->
+  <text x="14" y="632" font-size="9" font-weight="600" fill="#475569">LEGEND</text>
+  <rect x="14" y="640" width="12" height="10" rx="2" fill="#dbeafe" stroke="#60a5fa" stroke-width="1"/>
+  <text x="32" y="650" font-size="9" fill="#334155">Ingestion / Storage</text>
+  <rect x="140" y="640" width="12" height="10" rx="2" fill="#fefce8" stroke="#eab308" stroke-width="1"/>
+  <text x="158" y="650" font-size="9" fill="#334155">Query Processing</text>
+  <rect x="265" y="640" width="12" height="10" rx="2" fill="#dcfce7" stroke="#22c55e" stroke-width="1"/>
+  <text x="283" y="650" font-size="9" fill="#334155">Generation / Grounding</text>
+  <rect x="410" y="640" width="12" height="10" rx="2" fill="#f3e8ff" stroke="#a855f7" stroke-width="1"/>
+  <text x="428" y="650" font-size="9" fill="#334155">Memory (Conversation)</text>
+  <rect x="560" y="640" width="12" height="10" rx="2" fill="#fef2f2" stroke="#dc2626" stroke-width="1" stroke-dasharray="3,2"/>
+  <text x="578" y="650" font-size="9" fill="#334155">Fallback / Error path</text>
+  <line x1="680" y1="645" x2="700" y2="645" stroke="#f97316" stroke-dasharray="3,2" stroke-width="1.5" marker-end="url(#arr-orange)"/>
+  <text x="706" y="650" font-size="9" fill="#334155">OpenAI API call</text>
 </svg>
